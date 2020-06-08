@@ -1,0 +1,14 @@
+﻿  Camera.cpp
+C:\Users\dlwlg\Desktop\CGcods\CG\Final\Final\Camera.cpp(3,10): fatal error C1083: 포함 파일을 열 수 없습니다. 'GL/freeglut.h': No such file or directory
+  control.cpp
+C:\Users\dlwlg\Desktop\CGcods\CG\Final\Final\control.cpp(2,9): fatal error C1083: 포함 파일을 열 수 없습니다. 'GL/glew.h': No such file or directory
+  loadobj.cpp
+C:\Users\dlwlg\Desktop\CGcods\CG\Final\Final\loadobj.cpp(4,9): fatal error C1083: 포함 파일을 열 수 없습니다. 'GL/glew.h': No such file or directory
+  LoadShaders.cpp
+C:\Users\dlwlg\Desktop\CGcods\CG\Final\Final\LoadShaders.cpp(10,10): fatal error C1083: 포함 파일을 열 수 없습니다. 'GL/glew.h': No such file or directory
+  main.cpp
+C:\Users\dlwlg\Desktop\CGcods\CG\Final\Final\main.cpp(5,9): fatal error C1083: 포함 파일을 열 수 없습니다. 'GL/glew.h': No such file or directory
+  tiny_obj_loader.cc
+  Util.cpp
+C:\Users\dlwlg\Desktop\CGcods\CG\Final\Final\Util.cpp(2,9): fatal error C1083: 포함 파일을 열 수 없습니다. 'GL/glew.h': No such file or directory
+  코드를 생성하고 있습니다...

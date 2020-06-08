@@ -1,6 +1,8 @@
 # Prerequisites
 *.d
 
+*.vs
+
 Final/ode/
 Final/glm/
 Final/glew/
