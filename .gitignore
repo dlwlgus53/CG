@@ -1,10 +1,10 @@
 # Prerequisites
 *.d
 
-ode/
-glm/
-glew/
-freeglut/
+Final/ode/
+Final/glm/
+Final/glew/
+Final/freeglut/
 
 # Compiled Object files
 *.slo
