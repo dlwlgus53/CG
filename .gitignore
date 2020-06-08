@@ -1,10 +1,14 @@
 # Prerequisites
 *.d
 
+*.vs
+
 Final/ode/
 Final/glm/
 Final/glew/
 Final/freeglut/
+Final/Debug/
+Final/Final/Debug/
 
 # Compiled Object files
 *.slo
