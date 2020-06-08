@@ -9,7 +9,8 @@ Final/glew/
 Final/freeglut/
 Final/Final/Debug/Final.log
 Final/Final/Debug/Final.tlog/CL.write.1.tlog
-
+Final/Debug
+Final/Final/Debug
 # Compiled Object files
 *.slo
 *.lo
