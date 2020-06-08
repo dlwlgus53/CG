@@ -1,6 +1,11 @@
 # Prerequisites
 *.d
 
+ode/
+glm/
+glew/
+freeglut/
+
 # Compiled Object files
 *.slo
 *.lo
