@@ -41,11 +41,12 @@
 using namespace tinyobj;
 using namespace glm;
 
-int projection_mode = 1;
-enum { MODEL_MAZE, MODEL_MOON, NUM_OF_MODELS };
+
+enum { ORTHOGRAPHIC, PERSPECTIVE };
+enum { MODEL_MAZE, MODEL_PLAYER1, MODEL_PLAYER2,NUM_OF_MODELS };
 const char* model_files[NUM_OF_MODELS] = {
-"models/maze.obj", "models/moon.obj" };
-float model_scales[NUM_OF_MODELS] = { 1.5f, 0.15f };
+"models/maze.obj", "models/moon.obj", "models/moon.obj" };
+float model_scales[NUM_OF_MODELS] = { 1.5f, 0.3f, 0.3f };
 PlanetState mstate[NUM_OF_MODELS];
 vector<real_t> vertices[NUM_OF_MODELS];
 vector<real_t> normals[NUM_OF_MODELS];
@@ -70,7 +71,6 @@ static bool pause =  TRUE;
 
 
 static dGeomID ode_plane_geom; 
-
 //primitives
 //static dBodyID ode_sphere_body;//rigid
 //static dGeomID ode_sphere_geom;//geometry
@@ -80,6 +80,9 @@ static dBodyID ode_trimesh_body[NUM_OF_MODELS];//rigied
 static dGeomID ode_trimesh_geom[NUM_OF_MODELS];//body 
 static dTriMeshDataID ode_trimesh_data[NUM_OF_MODELS];//vertex to ode
 static std::vector<dTriIndex> ode_trimesh_index[NUM_OF_MODELS];//index to ode
+
+
+int projection_mode = PERSPECTIVE;
 
 
 
@@ -214,7 +217,7 @@ void init()
 	for (size_t k = 0; k < NUM_OF_MODELS; ++k)
 	{
 		
-		for (size_t j = 0; j < 2; j++) {//program
+		for (size_t j = 0; j < 2; j++) {//program num
 			
 			
 			
@@ -275,33 +278,47 @@ void init()
 	dBodySetMass(ode_trimesh_body[MODEL_MAZE], &m);
 
 	// Generate the rigid body and geometry objects for a trimesh.
-	ode_trimesh_body[MODEL_MOON] = dBodyCreate(ode_world);
-	dBodySetPosition(ode_trimesh_body[MODEL_MOON], 0, 0, 0); //upside down..?
-	dBodySetRotation(ode_trimesh_body[MODEL_MOON], R);
-	dBodySetLinearVel(ode_trimesh_body[MODEL_MOON], 0, 0, 0);
-	dBodySetAngularVel(ode_trimesh_body[MODEL_MOON], 0, 0, 0);
-	n = (int)(vertices[MODEL_MOON].size() / 3);
-	ode_trimesh_index[MODEL_MOON].resize(n);
-	for (int i = 0; i < n; ++i) ode_trimesh_index[MODEL_MOON][i] = i;
-	ode_trimesh_data[MODEL_MOON] = dGeomTriMeshDataCreate();
-	dGeomTriMeshDataBuildSingle(ode_trimesh_data[MODEL_MOON], vertices[MODEL_MOON].data(), 3 * sizeof(float), n,
-		ode_trimesh_index[MODEL_MOON].data(), n, 3 * sizeof(dTriIndex));
-	ode_trimesh_geom[MODEL_MOON] = dCreateTriMesh(ode_space, ode_trimesh_data[MODEL_MOON], 0, 0, 0);
-	dGeomSetBody(ode_trimesh_geom[MODEL_MOON], ode_trimesh_body[MODEL_MOON]);
-	dMassSetTrimeshTotal(&m, 10, ode_trimesh_geom[MODEL_MOON]);
-	dGeomSetPosition(ode_trimesh_geom[MODEL_MOON], -m.c[0], -m.c[1], -m.c[2]);
+	ode_trimesh_body[MODEL_PLAYER1] = dBodyCreate(ode_world);
+	dBodySetPosition(ode_trimesh_body[MODEL_PLAYER1], 0, 0, 0); //upside down..?
+	dBodySetRotation(ode_trimesh_body[MODEL_PLAYER1], R);
+	dBodySetLinearVel(ode_trimesh_body[MODEL_PLAYER1], 0, 0, 0);
+	dBodySetAngularVel(ode_trimesh_body[MODEL_PLAYER1], 0, 0, 0);
+	n = (int)(vertices[MODEL_PLAYER1].size() / 3);
+	ode_trimesh_index[MODEL_PLAYER1].resize(n);
+	for (int i = 0; i < n; ++i) ode_trimesh_index[MODEL_PLAYER1][i] = i;
+	ode_trimesh_data[MODEL_PLAYER1] = dGeomTriMeshDataCreate();
+	dGeomTriMeshDataBuildSingle(ode_trimesh_data[MODEL_PLAYER1], vertices[MODEL_PLAYER1].data(), 3 * sizeof(float), n,
+		ode_trimesh_index[MODEL_PLAYER1].data(), n, 3 * sizeof(dTriIndex));
+	ode_trimesh_geom[MODEL_PLAYER1] = dCreateTriMesh(ode_space, ode_trimesh_data[MODEL_PLAYER1], 0, 0, 0);
+	dGeomSetBody(ode_trimesh_geom[MODEL_PLAYER1], ode_trimesh_body[MODEL_PLAYER1]);
+	dMassSetTrimeshTotal(&m, 10, ode_trimesh_geom[MODEL_PLAYER1]);
+	dGeomSetPosition(ode_trimesh_geom[MODEL_PLAYER1], -m.c[0], -m.c[1], -m.c[2]);
 	dMassTranslate(&m, -m.c[0], -m.c[1], -m.c[2]);
-	dBodySetMass(ode_trimesh_body[MODEL_MOON], &m);
+	dBodySetMass(ode_trimesh_body[MODEL_PLAYER1], &m);
 
-
-
-
+	
+	// Generate the rigid body and geometry objects for a trimesh.
+	ode_trimesh_body[MODEL_PLAYER2] = dBodyCreate(ode_world);
+	dBodySetPosition(ode_trimesh_body[MODEL_PLAYER2], 1, 0, 0); //upside down..?
+	dBodySetRotation(ode_trimesh_body[MODEL_PLAYER2], R);
+	dBodySetLinearVel(ode_trimesh_body[MODEL_PLAYER2], 0, 0, 0);
+	dBodySetAngularVel(ode_trimesh_body[MODEL_PLAYER2], 0, 0, 0);
+	n = (int)(vertices[MODEL_PLAYER2].size() / 3);
+	ode_trimesh_index[MODEL_PLAYER2].resize(n);
+	for (int i = 0; i < n; ++i) ode_trimesh_index[MODEL_PLAYER2][i] = i;
+	ode_trimesh_data[MODEL_PLAYER2] = dGeomTriMeshDataCreate();
+	dGeomTriMeshDataBuildSingle(ode_trimesh_data[MODEL_PLAYER2], vertices[MODEL_PLAYER2].data(), 3 * sizeof(float), n,
+		ode_trimesh_index[MODEL_PLAYER2].data(), n, 3 * sizeof(dTriIndex));
+	ode_trimesh_geom[MODEL_PLAYER2] = dCreateTriMesh(ode_space, ode_trimesh_data[MODEL_PLAYER2], 0, 0, 0);
+	dGeomSetBody(ode_trimesh_geom[MODEL_PLAYER2], ode_trimesh_body[MODEL_PLAYER2]);
+	dMassSetTrimeshTotal(&m, 20, ode_trimesh_geom[MODEL_PLAYER2]);
+	dGeomSetPosition(ode_trimesh_geom[MODEL_PLAYER2], -m.c[0], -m.c[1], -m.c[2]);
+	dMassTranslate(&m, -m.c[0], -m.c[1], -m.c[2]);
+	dBodySetMass(ode_trimesh_body[MODEL_PLAYER2], &m);
+	
 
 
 }
-
-
-
 
 int button_pressed[3] = { GLUT_UP, GLUT_UP, GLUT_UP };// left, mid, right
 int mouse_pos[2] = { 0,0 };//mouse position
@@ -315,13 +332,14 @@ void mouse(int button, int state, int x, int y) {
 }
 
 
-void toggle_ballview(vec3 ball) {
+void toggle_ballview(float a1, float a2, float a3) {
 	before_mapview = camera.eye;
-	camera.eye = ball;
+	camera.center= vec3(a1,a2,a3);
+	camera.eye = vec3(a1, a2+0.2, a3);
 	camera.projection_mode = projection_mode;
 
 	mat4 V = camera.get_viewing();
-	mat4 P = camera.get_projection(1);
+	mat4 P = camera.get_projection(projection_mode);
 
 	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
 	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
@@ -383,7 +401,7 @@ void wheel(int wheel, int direction, int x, int y) {
 	camera.projection_mode = projection_mode;
 
 	mat4 V = camera.get_viewing();
-	mat4 P = camera.get_projection(1);
+	mat4 P = camera.get_projection(camera.projection_mode);
 
 	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
 	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
@@ -432,7 +450,7 @@ void motion(int x, int y) {
 }
 
 
-
+int player =0;
 //cube, sphere, cone, cyinder, torus, composition
 void keyboard(unsigned char key, int x, int y)
 {
@@ -463,7 +481,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'M':
 		printf("move the ball over the top of the teapot");
-		dBodySetPosition(ode_trimesh_body[MODEL_MOON], 0, 0.5, 0);
+		dBodySetPosition(ode_trimesh_body[MODEL_PLAYER1], 0, 0.5, 0);
 		glutPostRedisplay();
 
 		break;
@@ -475,10 +493,11 @@ void keyboard(unsigned char key, int x, int y)
 
 		break;
 
-	case 'b':
-		printf("ball view\n");
-		const dReal* pos = dBodyGetPosition(ode_trimesh_body[MODEL_MOON]);
-		toggle_ballview(vec3(pos[0], pos[1]+0.2, pos[2]));
+	case 's':
+		printf("switch player\n");
+		player = !player;
+		const dReal* pos = dBodyGetPosition(ode_trimesh_body[player+1]);
+		toggle_ballview(pos[0], pos[1], pos[2]);
 		//camera.center = vec3(0,0,0.1);
 		glutPostRedisplay();
 		break;
@@ -669,7 +688,9 @@ void render(int color_mode = 0)
 			glBindVertexArray(vao[i][shading_mode]);
 			mat4 T(1.0f);
 			mat4 M(1.0f);
-
+			M = compute_modelling_transf(ode_trimesh_body[i], model_scales[i]);
+			glUniformMatrix4fv(1, 1, GL_FALSE, value_ptr(M));
+			/*
 			if (i == MODEL_MAZE) {
 				M = compute_modelling_transf(ode_trimesh_body[MODEL_MAZE], model_scales[MODEL_MAZE]);
 				glUniformMatrix4fv(1, 1, GL_FALSE, value_ptr(M));
@@ -677,10 +698,11 @@ void render(int color_mode = 0)
 
 			}
 			else {
-				M = compute_modelling_transf(ode_trimesh_body[MODEL_MOON], model_scales[MODEL_MOON]);
+				M = compute_modelling_transf(ode_trimesh_body[MODEL_PLAYER1], model_scales[MODEL_PLAYER1]);
 				glUniformMatrix4fv(1, 1, GL_FALSE, value_ptr(M));
 				//T = mat4(mstate[MODEL_MOON].get_transf());
 			}
+			*/
 			glUniformMatrix4fv(UVARS("T"), 1, GL_FALSE, value_ptr(T));
 			draw_obj_model(i, color_mode, i + 1);
 		}
