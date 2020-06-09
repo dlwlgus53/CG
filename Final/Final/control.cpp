@@ -17,7 +17,18 @@ void mouse(int button, int state, int x, int y) {
 
 
 
+void mapview() {
+	camera.eye = vec3(0, 5, 0);
+	camera.projection_mode = projection_mode;
 
+	mat4 V = camera.get_viewing();
+	mat4 P = camera.get_projection(1);
+
+	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+	glutPostRedisplay();
+}
 
 
 

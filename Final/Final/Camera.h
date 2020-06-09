@@ -52,6 +52,7 @@ struct Camera {
 		}
 		return p;
 	}
+	
 
 	void tumble(GLfloat dx, GLfloat dy) {
 		vec4 disp(eye - center, 1);

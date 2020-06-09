@@ -41,7 +41,7 @@ using namespace glm;
 enum { MODEL_MAZE, MODEL_MOON, NUM_OF_MODELS };
 const char* model_files[NUM_OF_MODELS] = {
 "models/maze.obj", "models/moon.obj" };
-float model_scales[NUM_OF_MODELS] = { 1.0f, 0.3f };
+float model_scales[NUM_OF_MODELS] = { 1.5f, 0.15f };
 PlanetState mstate[NUM_OF_MODELS];
 vector<real_t> vertices[NUM_OF_MODELS];
 vector<real_t> normals[NUM_OF_MODELS];
@@ -203,8 +203,6 @@ void init()
 
 	}
 
-
-
 	for (size_t k = 0; k < NUM_OF_MODELS; ++k)
 	{
 		
@@ -270,7 +268,7 @@ void init()
 
 	// Generate the rigid body and geometry objects for a trimesh.
 	ode_trimesh_body[MODEL_MOON] = dBodyCreate(ode_world);
-	dBodySetPosition(ode_trimesh_body[MODEL_MOON], 0, -0.5, 0);
+	dBodySetPosition(ode_trimesh_body[MODEL_MOON], 0, 0, 0); //upside down..?
 	dBodySetRotation(ode_trimesh_body[MODEL_MOON], R);
 	dBodySetLinearVel(ode_trimesh_body[MODEL_MOON], 0, 0, 0);
 	dBodySetAngularVel(ode_trimesh_body[MODEL_MOON], 0, 0, 0);
@@ -282,7 +280,7 @@ void init()
 		ode_trimesh_index[MODEL_MOON].data(), n, 3 * sizeof(dTriIndex));
 	ode_trimesh_geom[MODEL_MOON] = dCreateTriMesh(ode_space, ode_trimesh_data[MODEL_MOON], 0, 0, 0);
 	dGeomSetBody(ode_trimesh_geom[MODEL_MOON], ode_trimesh_body[MODEL_MOON]);
-	dMassSetTrimeshTotal(&m, 20, ode_trimesh_geom[MODEL_MOON]);
+	dMassSetTrimeshTotal(&m, 10, ode_trimesh_geom[MODEL_MOON]);
 	dGeomSetPosition(ode_trimesh_geom[MODEL_MOON], -m.c[0], -m.c[1], -m.c[2]);
 	dMassTranslate(&m, -m.c[0], -m.c[1], -m.c[2]);
 	dBodySetMass(ode_trimesh_body[MODEL_MOON], &m);
@@ -314,7 +312,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'O':
 		printf("Move teapot origin");
-		dBodySetPosition(ode_trimesh_body[MODEL_MAZE], 0, 0, 0);
+		dBodySetPosition(ode_trimesh_body[MODEL_MAZE], 0, 0.1, 0);
 		glutPostRedisplay();
 
 		break;
@@ -324,11 +322,21 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 
 		break;
+	case 'm':
+		printf("map!");
+		mapview();
+		glutPostRedisplay();
+
+		break;
+
 
 	}
 	
 
 }
+	
+
+
 
 
 
@@ -454,10 +462,9 @@ void toggle_projection() {
 	}
 	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));//vertex shader
 	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));//vertex shader
-
 }
 
-glm::mat4 compute_modelling_transf(dBodyID body)
+glm::mat4 compute_modelling_transf(dBodyID body, float scalef)
 {
 	using namespace glm;
 	mat4 M(1.0f);
@@ -467,6 +474,7 @@ glm::mat4 compute_modelling_transf(dBodyID body)
 	for (int i = 0; i < 3; ++i) // for each column
 		for (int j = 0; j < 3; ++j) // for each row
 			M[i][j] = rot[j * 4 + i];
+	M = scale(M, vec3(scalef));
 	return M;
 }
 
@@ -509,13 +517,13 @@ void render(int color_mode = 0)
 			mat4 M(1.0f);
 
 			if (i == MODEL_MAZE) {
-				M = compute_modelling_transf(ode_trimesh_body[MODEL_MAZE]);
+				M = compute_modelling_transf(ode_trimesh_body[MODEL_MAZE], model_scales[MODEL_MAZE]);
 				glUniformMatrix4fv(1, 1, GL_FALSE, value_ptr(M));
 				//T = mat4(mstate[MODEL_MAZE].get_transf());
 
 			}
 			else {
-				M = compute_modelling_transf(ode_trimesh_body[MODEL_MOON]);
+				M = compute_modelling_transf(ode_trimesh_body[MODEL_MOON], model_scales[MODEL_MOON]);
 				glUniformMatrix4fv(1, 1, GL_FALSE, value_ptr(M));
 				//T = mat4(mstate[MODEL_MOON].get_transf());
 			}
