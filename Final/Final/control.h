@@ -8,4 +8,4 @@ void motion(int x, int y);
 void passive_motion(int x, int y);
 void wheel(int wheel, int direction, int x, int y);
 
-void mapview();
+void toggle_mapview(bool map);

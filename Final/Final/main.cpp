@@ -93,7 +93,7 @@ int dr_left_right = 0;
 int shading_mode = 0; //original, phong, gourad
 int model_num = 0;// grid - object]
 
-
+bool see_map = false;
 
 using namespace std;
 typedef std::vector<GLfloat> GLvec;
@@ -323,8 +323,9 @@ void keyboard(unsigned char key, int x, int y)
 
 		break;
 	case 'm':
-		printf("map!");
-		mapview();
+		print("map view\n");
+		see_map = !see_map;
+		toggle_mapview(see_map);
 		glutPostRedisplay();
 
 		break;

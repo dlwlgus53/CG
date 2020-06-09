@@ -7,6 +7,7 @@ Camera camera;
 
 int button_pressed[3] = { GLUT_UP, GLUT_UP, GLUT_UP };// left, mid, right
 int mouse_pos[2] = { 0,0 };//mouse position
+vec3 before_mapview = camera.eye;
 
 						   
 void mouse(int button, int state, int x, int y) {
@@ -17,17 +18,34 @@ void mouse(int button, int state, int x, int y) {
 
 
 
-void mapview() {
-	camera.eye = vec3(0, 5, 0);
-	camera.projection_mode = projection_mode;
+void toggle_mapview(bool see_map) {
+	if (see_map) {
 
-	mat4 V = camera.get_viewing();
-	mat4 P = camera.get_projection(1);
+		before_mapview = camera.eye;
+		camera.eye = vec3(0, 5, 0);
+		camera.projection_mode = projection_mode;
 
-	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
-	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+		mat4 V = camera.get_viewing();
+		mat4 P = camera.get_projection(1);
 
-	glutPostRedisplay();
+		glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+		glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+		glutPostRedisplay();
+	}
+	else {
+		camera.eye = before_mapview;
+		camera.projection_mode = projection_mode;
+
+		mat4 V = camera.get_viewing();
+		mat4 P = camera.get_projection(1);
+
+		glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+		glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+		glutPostRedisplay();
+	}
+
 }
 
 
