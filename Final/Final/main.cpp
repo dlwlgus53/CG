@@ -5,7 +5,6 @@
 #include<GL/glew.h>
 #include<GL/glut.h>
 #include <GL/freeglut.h>
-#include <GL/freeglut.h>
 #include<ode/ode.h>
 #include"Global.h"
 #include"Util.h"
@@ -28,6 +27,11 @@
 #include<windows.h>
 #include <ode/common.h>
 #include <Mmsystem.h>
+#include <GL/freeglut.h>
+#include <iostream>
+#include "Camera.h"
+
+
 #define dEpsilon 1E-6
 
 #define UVAR(name, i) glGetUniformLocation(program[i], name)
@@ -37,7 +41,7 @@
 using namespace tinyobj;
 using namespace glm;
 
-
+int projection_mode = 1;
 enum { MODEL_MAZE, MODEL_MOON, NUM_OF_MODELS };
 const char* model_files[NUM_OF_MODELS] = {
 "models/maze.obj", "models/moon.obj" };
@@ -112,6 +116,10 @@ void bind_buffer(GLint buffer, int program, const GLchar* attri_name, GLint attr
 void toggle_projection();
 //void mouse(int button, int state, int x, int y);
 void keyboard(unsigned char key, int x, int y);
+void mouse(int button, int state, int x, int y);
+void wheel(int wheel, int direction, int x, int y);
+void passive_motion(int x, int y);
+void motion(int x, int y);
 
 void main(int argc, char** argv)
 {
@@ -176,7 +184,7 @@ void bind_buffer(GLint buffer, int program, const GLchar* attri_name, GLint attr
 	glVertexAttribPointer(location, attri_size, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(location);
 }
-
+Camera camera;
 //cube, sphere, cone, cyinder, torus, composition
 void init()
 {		
@@ -286,7 +294,144 @@ void init()
 	dBodySetMass(ode_trimesh_body[MODEL_MOON], &m);
 
 
+
+
+
+
 }
+
+
+
+
+int button_pressed[3] = { GLUT_UP, GLUT_UP, GLUT_UP };// left, mid, right
+int mouse_pos[2] = { 0,0 };//mouse position
+vec3 before_mapview = camera.eye;
+
+
+void mouse(int button, int state, int x, int y) {
+	button_pressed[button] = state;
+	mouse_pos[0] = x;
+	mouse_pos[1] = y;
+}
+
+
+void toggle_ballview(vec3 ball) {
+	before_mapview = camera.eye;
+	camera.eye = ball;
+	camera.projection_mode = projection_mode;
+
+	mat4 V = camera.get_viewing();
+	mat4 P = camera.get_projection(1);
+
+	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+	glutPostRedisplay();
+}
+
+void toggle_mapview(bool see_map) {
+	if (see_map) {
+
+		before_mapview = camera.eye;
+		camera.eye = vec3(0, 5, 0);
+		camera.projection_mode = projection_mode;
+
+		mat4 V = camera.get_viewing();
+		mat4 P = camera.get_projection(1);
+
+		glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+		glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+		glutPostRedisplay();
+	}
+	else {
+		camera.eye = before_mapview;
+		camera.projection_mode = projection_mode;
+
+		mat4 V = camera.get_viewing();
+		mat4 P = camera.get_projection(1);
+
+		glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+		glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+		glutPostRedisplay();
+	}
+
+}
+
+
+
+void wheel(int wheel, int direction, int x, int y) {
+
+	int modifiers = glutGetModifiers(); //alt shift ctrl
+	int is_alt_active = modifiers & GLUT_ACTIVE_ALT;
+	int is_ctrl_active = modifiers & GLUT_ACTIVE_CTRL;
+	int is_shift_active = modifiers & GLUT_ACTIVE_SHIFT;
+
+	int w = glutGet(GLUT_WINDOW_WIDTH);
+	int h = glutGet(GLUT_WINDOW_HEIGHT);
+
+	GLfloat dx = 1.f * (x - mouse_pos[0]) / w;
+	GLfloat dy = -1.f * (y - mouse_pos[0]) / h;
+
+	if (is_alt_active)
+		camera.dolly(direction);
+	else
+		camera.zoom(direction);
+
+
+	camera.projection_mode = projection_mode;
+
+	mat4 V = camera.get_viewing();
+	mat4 P = camera.get_projection(1);
+
+	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+	glutPostRedisplay();
+
+}
+
+void passive_motion(int x, int y) {
+
+}
+
+void motion(int x, int y) {
+	int modifiers = glutGetModifiers(); //alt shift ctrl
+	int is_alt_active = modifiers & GLUT_ACTIVE_ALT;
+	int is_ctrl_active = modifiers & GLUT_ACTIVE_CTRL;
+	int is_shift_active = modifiers & GLUT_ACTIVE_SHIFT;
+
+	int w = glutGet(GLUT_WINDOW_WIDTH);
+	int h = glutGet(GLUT_WINDOW_HEIGHT);
+
+	GLfloat dx = 1.f * (x - mouse_pos[0]) / w;
+	GLfloat dy = -1.f * (y - mouse_pos[1]) / h;
+
+	///add code
+	if (!button_pressed[0] && is_alt_active) {
+		camera.tumble(dx, dy);
+	}
+	else if (!button_pressed[1] && is_alt_active) {
+		camera.track(dx, dy);
+	}
+
+
+	mouse_pos[0] = x;
+	mouse_pos[1] = y;
+	camera.projection_mode = projection_mode;
+
+	mat4 V = camera.get_viewing();
+	mat4 P = camera.get_projection(1);
+
+	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+
+	glutPostRedisplay();
+
+}
+
+
 
 //cube, sphere, cone, cyinder, torus, composition
 void keyboard(unsigned char key, int x, int y)
@@ -323,11 +468,19 @@ void keyboard(unsigned char key, int x, int y)
 
 		break;
 	case 'm':
-		print("map view\n");
+		printf("map view\n");
 		see_map = !see_map;
 		toggle_mapview(see_map);
 		glutPostRedisplay();
 
+		break;
+
+	case 'b':
+		printf("ball view\n");
+		const dReal* pos = dBodyGetPosition(ode_trimesh_body[MODEL_MOON]);
+		toggle_ballview(vec3(pos[0], pos[1]+0.2, pos[2]));
+		//camera.center = vec3(0,0,0.1);
+		glutPostRedisplay();
 		break;
 
 

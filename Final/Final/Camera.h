@@ -25,7 +25,9 @@ struct Camera {
 		center(0, 0, 0),
 		up(0, 1, 0),
 		zoom_factor(1.0f),
-		projection_mode(ORTHOGRAPHIC),
+		//projection_mode(ORTHOGRAPHIC),
+		projection_mode(PERSPECTIVE),
+
 		z_near(0.01f),
 		z_far(100.0f),
 		fovy((float)(M_PI/180.0*(30.0))),

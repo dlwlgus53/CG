@@ -1,3 +1,4 @@
+/*
 #include <iostream>
 #include<GL/glew.h>
 #include <GL/freeglut.h>
@@ -17,6 +18,19 @@ void mouse(int button, int state, int x, int y) {
 }
 
 
+void toggle_ballview(vec3 ball) {
+	before_mapview = camera.eye;
+	camera.eye = ball;
+	camera.projection_mode = projection_mode;
+
+	mat4 V = camera.get_viewing();
+	mat4 P = camera.get_projection(1);
+
+	glUniformMatrix4fv(2, 1, GL_FALSE, value_ptr(V));
+	glUniformMatrix4fv(3, 1, GL_FALSE, value_ptr(P));
+
+	glutPostRedisplay();
+}
 
 void toggle_mapview(bool see_map) {
 	if (see_map) {
@@ -119,3 +133,4 @@ void motion(int x, int y) {
 	glutPostRedisplay();
 
 }
+*/
